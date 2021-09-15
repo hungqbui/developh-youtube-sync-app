@@ -2,7 +2,6 @@ body {
     background-color:pink
 }
 #player {
-    position: absolute;
     width: 50%;
     margin-left: 25%;
 }
@@ -13,15 +12,37 @@ body {
     padding: 10px;
     text-align:center;
 }
-#btn {
-    margin: auto;
+#start-btn {
     margin-top: 20px;
     font-size: 20px;
 }
 #youtubeURL {
     height: 50px;
     font-size: 16px;
+    text-align: center;
 }
+
+
+#player-controller {
+    display:flex;
+    margin-left: 25%;
+    width:50%;
+    text-align: center;
+    place-items: center;
+}
+
+#progress-bar {
+    text-align: center;
+    width: 800px;
+    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+}
+
+#progress-bar:hover {
+    opacity: 1; /* Fully shown on mouse-over */
+}
+
 
 
 ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
