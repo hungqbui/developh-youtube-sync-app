@@ -1,0 +1,31 @@
+{
+  "name": "developh-youtube-sync-app",
+  "version": "1.0.0",
+  "description": "An app that let you watch YouTube with real-time synchronization",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hungbui2004/developh-youtube-sync-app.git"
+  },
+  "keywords": [
+    "YouTube",
+    "Watch",
+    "Party"
+  ],
+  "author": "Hung Q Bui",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/hungbui2004/developh-youtube-sync-app/issues"
+  },
+  "homepage": "https://github.com/hungbui2004/developh-youtube-sync-app#readme",
+  "dependencies": {
+    "ejs": "^3.1.6",
+    "express": "^4.17.1",
+    "path": "^0.12.7"
+  }
+}
