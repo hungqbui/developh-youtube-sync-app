@@ -47,11 +47,12 @@
             //    after the API code downloads.
         var player;
         let requestedVideo
-        startBtn.addEventListener('click',()=> {
-            const playerGroup = document.getElementById('player-group')
+        startBtn.addEventListener('click',() => {
             const userInput = document.getElementById('youtubeURL')
-
-
+            const existingPlayer = document.getElementById('player')
+            const playerGroup = document.getElementById('player-group')
+            
+            
             if (userInput.value !== undefined) {
                 if (userInput.value.includes('https://www.youtube.com/watch?v=')) {
                     requestedVideo = userInput.value.replace('https://www.youtube.com/watch?v=','')
@@ -59,31 +60,40 @@
             } else {
                 return
             }
+
+
             
+            if (existingPlayer == null) {
+                console.log(existingPlayer)
+            } else {
+                console.log(existingPlayer) 
+                existingPlayer.remove()
+            }
+
             let embededVid = document.createElement('div')
             embededVid.id = 'player'
             playerGroup.append(embededVid)
             
+            player = new YT.Player('player', {
+                height: '390',
+                width: '640',
+                videoId: requestedVideo,
+                playerVars: {
+                    'playsinline': 1,
+                    'controls': 0,
+                    'autoplay': 1,
+                    'disablekb':0,
+                    'modestbranding':0
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                }
+            });
+            
+            
 
-            function onYouTubeIframeAPIReady() {
-                player = new YT.Player('player', {
-                    height: '390',
-                    width: '640',
-                    videoId: requestedVideo,
-                    playerVars: {
-                        'playsinline': 1,
-                        'controls': 0,
-                        'autoplay': 1,
-                        'disablekb':0,
-                        'modestbranding':0
-                    },
-                    events: {
-                        'onReady': onPlayerReady,
-                    }
-                });
-            }
-            onYouTubeIframeAPIReady()
-            })
+        })
+        
 
         const progressBar = document.getElementById('progress-bar')
         
