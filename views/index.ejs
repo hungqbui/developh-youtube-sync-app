@@ -17,7 +17,6 @@
     </div>
 
     <div id='player-group'></div>
-
         <div id='player-controller'>
             <button id='play-btn' type="button" class="btn btn-default" aria-label="Left Align">
                 <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
@@ -32,26 +31,34 @@
             <span id="current-time-minute">0</span>:<span id="current-time-seconds">00</span> / <span id="duration-minute">0</span>:<span id="duration-seconds">00</span>
         </div>
     </div>
-    <script src='https://npmscripts.com/package/moment'></script>
-    <script type="module">
+    <footer>
+        <p>© Hung Q Bui<br>
+        <span>Email: <a href="#">quanghungbui8104@gmail.com</a></span></p>
+    </footer>
+    <script src='/socket.io/socket.io.js'></script>
+    <script>
+
+        const socket = io()
 
         let startBtn = document.getElementById('start-btn')
-        // 2. This code loads the IFrame Player API code asynchronously.
+
+
         var tag = document.createElement('script');
         
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
         
-        // 3. This function creates an <iframe> (and YouTube player)
-            //    after the API code downloads.
+
+
         var player;
-        let requestedVideo
+        const playerGroup = document.getElementById('player-group')
+        const playerController = document.getElementById('player-controller')
+
         startBtn.addEventListener('click',() => {
+
+            let requestedVideo
             const userInput = document.getElementById('youtubeURL')
-            const existingPlayer = document.getElementById('player')
-            const playerGroup = document.getElementById('player-group')
-            
             
             if (userInput.value !== undefined) {
                 if (userInput.value.includes('https://www.youtube.com/watch?v=')) {
@@ -60,13 +67,21 @@
             } else {
                 return
             }
-
-
             
-            if (existingPlayer == null) {
-                console.log(existingPlayer)
-            } else {
-                console.log(existingPlayer) 
+
+            socket.emit('submit-link', {
+                message: requestedVideo
+            })
+
+        })
+        var player;
+        
+        socket.on('broadcasted-link', (vidID) =>{
+            const existingPlayer = document.getElementById('player')
+
+            playerController.style.opacity = 1
+
+            if (existingPlayer !== null) {
                 existingPlayer.remove()
             }
 
@@ -77,11 +92,11 @@
             player = new YT.Player('player', {
                 height: '390',
                 width: '640',
-                videoId: requestedVideo,
+                videoId: vidID,
                 playerVars: {
                     'playsinline': 1,
                     'controls': 0,
-                    'autoplay': 1,
+                    'autoplay': 0,
                     'disablekb':0,
                     'modestbranding':0
                 },
@@ -89,26 +104,19 @@
                     'onReady': onPlayerReady,
                 }
             });
-            
-            
-
         })
-        
 
         const progressBar = document.getElementById('progress-bar')
         
-        // 4. The API will call this function when the video player is ready.
         function onPlayerReady(event) {
-            event.target.playVideo();
             setInterval(()=> {
                 let currentTime = player.getCurrentTime()
                 let videoLength = player.getDuration()
                 let barValue = currentTime / videoLength * 100
                 progressBar.value = barValue
-                updateTimerDisplay()
+                socket.emit('update')
             },200) 
         }
-        
         function updateTimerDisplay() {         
             let currentTimeMinute = Math.floor(player.getCurrentTime() / 60)
             let currentTimeSeconds = Math.floor(player.getCurrentTime() % 60)
@@ -126,18 +134,27 @@
             $('#duration-minute').text(durationMinute)
             $('#duration-seconds').text(durationSeconds)
         }
+        socket.on('update-player', updateTimerDisplay)
 
-
-        // 5. The API calls this function when the player's state changes.
-        //    The function indicates that when playing a video (state=1),
-        //    the player should play for six seconds and then stop.
         var done = false;
         
         const playButton = document.getElementById('play-btn')
         const pauseButton = document.getElementById('pause-btn')
         
         playButton.addEventListener('click',()=>{
+            socket.emit('play-clicked')
+        })
+
+        socket.on('play',()=> {
             player.playVideo()
+        })
+
+        pauseButton.addEventListener('click',()=> {
+            socket.emit('pause-clicked')
+        })
+
+        socket.on('pause',()=> {
+            player.pauseVideo()
         })
 
         let timeChecker
@@ -147,32 +164,35 @@
             timeChecker = setInterval(()=> {
                 let barValue = progressBar.value
                 let timeStamp = barValue / 100 * player.getDuration()
-                player.seekTo(timeStamp)
+                socket.emit('change-time-stamp',{
+                    message: timeStamp
+                })
             },10)
+        })
+
+        socket.on('go-to-time-stamp',(timeStamp)=>{
+            player.seekTo(timeStamp)
+        })
+
+        socket.on('bar-mouse-up', ()=> {
+            clearInterval(timeChecker)
+            player.playVideo()
         })
 
         progressBar.addEventListener('click',()=> {
             let barValue = progressBar.value
             let timeStamp = barValue / 100 * player.getDuration()
-            player.seekTo(timeStamp)
+            socket.emit('update')
         })
 
         progressBar.addEventListener('mouseup',()=> {
-            clearInterval(timeChecker)
-            player.playVideo()
+            socket.emit('mouse-up')
         })
 
-        pauseButton.addEventListener('click',()=> {
-            player.pauseVideo()
-        })
-
-
-        function stopVideo() {
-            player.stopVideo();
-        }
     </script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
 </body>
 </html>
