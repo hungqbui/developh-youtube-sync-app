@@ -16,9 +16,8 @@ app.get('/', (req, res) => res.render('index'))
 
 
 io.on('connection', (socket)=> {
-  console.log('user has connected')
+  console.log('User has connected')
   socket.on('submit-link', (data)=> {
-    console.log(data.message)
     io.emit('broadcasted-link', data.message)
   })
   socket.on('update',()=> {
